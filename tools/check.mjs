@@ -214,6 +214,26 @@ if (!V) { console.log('  ✗ window.VELUNE absent'); bad++ } else {
   }
 }
 
+console.log('\n── Boutons « Jouer » ────────────────────────────')
+{
+  const url = V.play && V.play.url
+  const links = $$('[data-play]')
+  const openServers = V.servers.filter((s) => s.open).length
+  const cardLinks = $$('#serverGrid a[data-play]')
+  const okUrl = !!url && /^https?:\/\//.test(url)
+  if (!okUrl) bad++
+  console.log(`  ${okUrl ? '✓' : '✗'} adresse du jeu déclarée      ${url || '(absente)'}`)
+  // Nav, pastille du hero, bouton du hero, bandeau final, et une carte par
+  // serveur ouvert : il n'y en a pas d'autre à câbler.
+  const expected = 4 + openServers
+  const allGood = links.length === expected && links.every((a) => a.getAttribute('href') === url && a.getAttribute('target') === '_blank' && /noopener/.test(a.getAttribute('rel') || ''))
+  if (!allGood) bad++
+  console.log(`  ${allGood ? '✓' : '✗'} boutons reliés au jeu         ${links.length} attendus ${expected} (dont ${cardLinks.length} cartes serveur, ${openServers} ouverts)`)
+  const leftovers = $$('a[href="#rejoindre"]')
+  console.log(`  ${leftovers.length === 0 ? '✓' : '✗'} plus de lien interne « #rejoindre »   ${leftovers.length}`)
+  if (leftovers.length) bad++
+}
+
 console.log('\n── Ressources référencées ───────────────────────')
 const refs = new Set()
 $$('img').forEach((i) => { const s = i.getAttribute('src'); if (s && !s.startsWith('http')) refs.add(s) })

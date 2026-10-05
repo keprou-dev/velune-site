@@ -813,6 +813,7 @@
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <audio id="music" src="assets/audio/menu.mp3" loop preload="none"></audio>
 
+<script>/* Fluidité : images décodées hors du fil principal, chargées seulement quand on s'en approche */(function(){var f=function(i){i.decoding="async";if(!i.getAttribute("loading"))i.loading="lazy"};new MutationObserver(function(m){for(var k=0;k<m.length;k++)for(var a=m[k].addedNodes,j=0;j<a.length;j++){var n=a[j];if(n.nodeType!==1)continue;if(n.tagName==="IMG")f(n);else if(n.querySelectorAll)n.querySelectorAll("img").forEach(f)}}).observe(document.documentElement,{childList:true,subtree:true})})()</script>
 <script src="assets/js/data.js"></script>
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="assets/vendor/ScrollTrigger.min.js"></script>

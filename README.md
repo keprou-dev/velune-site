@@ -121,10 +121,34 @@ tools/                   build, vendor, check, shots, audit, gallery, serve, …
 - Les raccourcis façon jeu : **L** pour l'almanach, **M** pour la carte du monde,
   **Échap** pour fermer.
 
+## L'adresse du jeu
+
+Le monde est déployé en ligne. L'adresse est écrite **une seule fois**, en haut de
+`tools/build.mjs` :
+
+```js
+const PLAY = {
+  url: 'https://velune-h6og.onrender.com/',
+  health: 'https://velune-h6og.onrender.com/api/health',
+  label: 'Jouer en ligne',
+  since: 'V0.44',
+}
+```
+
+Après `npm run build`, elle est reprise par le site : les cinq boutons « Jouer »
+— barre de navigation, pastille du hero, bouton du hero, bandeau final et carte
+du serveur ouvert — pointent tous dessus, en nouvel onglet. Le HTML en garde une
+copie littérale pour rester cliquable même si le JavaScript ne tourne pas.
+
+`PLAY.health` n'est pas utilisé par le site : il sert de sonde si tu veux un jour
+afficher un état du serveur. Rien n'interroge le réseau pour l'instant, donc la
+page ne réveille pas l'instance Render.
+
 ## Limites connues
 
-- Le site est statique : il ne se connecte pas au serveur du jeu, la « Jouer »
-  renvoie vers la section serveurs.
+- Le site est statique : il ne se connecte pas au serveur du jeu. Les boutons
+  « Jouer » ouvrent le jeu déployé dans un nouvel onglet, mais le site lui-même
+  n'affiche aucune donnée vivante du serveur.
 - Les vignettes de carte et les portraits viennent directement du jeu ; rien
   n'est redessiné pour le site.
 - Google Fonts (Cinzel Decorative, Cinzel, Nunito) est chargé en ligne ; hors
