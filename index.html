@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vélune — MMORPG tactique au tour par tour</title>
+<meta name="description" content="Vélune, un MMORPG tactique isométrique au tour par tour : 4 classes, 367 cartes, 246 sorts, 58 créatures, un monde vivant de saules, de marais et d’éclats de Lume. Univers, personnages et assets 100 % originaux.">
+<meta name="theme-color" content="#05091a">
+<meta property="og:title" content="Vélune — le monde des Lumes">
+<meta property="og:description" content="MMORPG tactique au tour par tour, isométrique, jouable dans le navigateur.">
+<meta property="og:image" content="assets/art/menu/backdrop.svg">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M22 4a12 12 0 1 0 6 22A14 14 0 0 1 22 4Z' fill='%237FF3FF'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/sections.css">
+<link rel="stylesheet" href="assets/css/modules.css">
+<link rel="stylesheet" href="assets/css/motion.css">
+<link rel="preload" href="assets/vendor/gsap.min.js" as="script">
+<link rel="modulepreload" href="assets/vendor/ScrollTrigger.min.js" as="script">
+</head>
+<body>
+
+<!-- Préchargement -->
+<div class="loader" id="loader">
+  <svg class="loader-mark" viewBox="0 0 32 32" aria-hidden="true">
+    <path d="M22 3a13 13 0 1 0 7 24A15.5 15.5 0 0 1 22 3Z" fill="#7FF3FF"/>
+    <path d="M22 3a13 13 0 0 1 7 24 15.5 15.5 0 0 0-7-24Z" fill="#C9A7FF" opacity=".55"/>
+  </svg>
+  <div class="loader-word">Vélune</div>
+  <div class="loader-bar"><i></i></div>
+</div>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<canvas id="lumeCanvas" aria-hidden="true"></canvas>
+<div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+<!-- Navigation -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#top" aria-label="Vélune, retour en haut">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <circle class="ring" cx="16" cy="16" r="14" fill="none" stroke="#7FF3FF" stroke-opacity=".4" stroke-width="1" stroke-dasharray="3 5"/>
+        <path d="M22 4a13 13 0 1 0 7 23A15 15 0 0 1 22 4Z" fill="#7FF3FF"/>
+        <circle cx="12" cy="12" r="1.6" fill="#0A1328"/>
+      </svg>
+      Vélune
+    </a>
+
+    <nav class="nav-links" id="navLinks" aria-label="Sections">
+      <a href="#univers">Univers</a>
+      <a href="#classes">Classes</a>
+      <a href="#combat">Combat</a>
+      <a href="#monde">Monde</a>
+      <a href="#grimoire">Grimoire</a>
+      <a href="#bestiaire">Bestiaire</a>
+      <a href="#almanach">Almanach</a>
+      <a href="#metiers">Métiers</a>
+      <a href="#proprietes">Propriétés</a>
+      <a href="#economie">Économie</a>
+      <a href="#heros">Héros</a>
+      <a href="#tripot">Tripot</a>
+      <a href="#roadmap">Roadmap</a>
+    </nav>
+
+    <div class="nav-tools">
+      <button class="icon-btn" id="searchBtn" title="Rechercher (Ctrl + K)" aria-label="Rechercher dans Vélune">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+      <button class="icon-btn" id="musicBtn" title="Musique" aria-label="Activer la musique du menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="16" r="2.5"/></svg>
+      </button>
+      <a class="nav-cta" href="https://velune-h6og.onrender.com/" target="_blank" rel="noopener noreferrer" data-play>
+        Jouer
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <button class="icon-btn nav-burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ══ Hero ══════════════════════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero-bg" id="heroBg" aria-hidden="true"></div>
+    <div class="hero-haze" aria-hidden="true" data-depth="0.34"></div>
+    <div class="hero-moons" aria-hidden="true"></div>
+    <div class="hero-mist" aria-hidden="true" data-depth="0.62"></div>
+    <div class="hero-ridge" aria-hidden="true" data-depth="0.2"></div>
+
+    <div class="shell hero-inner">
+      <div class="hero-copy" data-depth="0.14">
+        <span class="hero-eyebrow reveal in">Version <b>V0.44</b> · serveur Sélénor ouvert · <a href="https://velune-h6og.onrender.com/" target="_blank" rel="noopener noreferrer" data-play>jouer en ligne</a></span>
+        <h1 class="hero-title reveal in" id="heroTitle" style="--d:80ms">
+          Vélune
+          <span class="l2">Le monde des Lumes</span>
+        </h1>
+        <p class="hero-sub reveal in" style="--d:160ms">
+          Un MMORPG tactique au tour par tour, en isométrique. Quatre classes,
+          <strong>367 cartes</strong> d’une île et d’un archipel entiers, des donjons où l’on
+          avance salle par salle, et une économie entièrement jouée entre joueurs.
+          Univers, personnages et assets&nbsp;100&nbsp;% originaux.
+        </p>
+        <div class="hero-actions reveal in" style="--d:240ms">
+          <a class="btn btn-primary" href="#classes">
+            Choisir sa classe
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#monde">
+            Explorer l’atlas
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 5-5 2.2 2.2-5Z"/></svg>
+          </a>
+          <a class="btn btn-play" href="https://velune-h6og.onrender.com/" target="_blank" rel="noopener noreferrer" data-play>
+            <span class="live-dot" aria-hidden="true"></span>
+            Jouer en ligne
+          </a>
+        </div>
+        <div class="hero-figs reveal in" style="--d:320ms" id="heroStats"></div>
+      </div>
+
+      <figure class="hero-hero reveal reveal-zoom in" data-depth="0.5" style="--d:200ms">
+        <span class="halo" aria-hidden="true"></span>
+        <div id="heroFigure" aria-label="Gardelame, personnage de la classe Gardelame"></div>
+      </figure>
+    </div>
+
+    <a class="scroll-cue" href="#univers" aria-label="Faire défiler vers l’univers">
+      <i></i>
+      Défiler
+    </a>
+  </section>
+
+  <!-- ══ Bandeau de chiffres ══════════════════════════════════════════ -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+
+  <!-- ══ Univers ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="univers">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="shell">
+      <div class="univers-grid">
+        <div class="lore reveal reveal-left">
+          <div class="section-head">
+            <span class="kicker">L’univers</span>
+            <h2 class="title-lg">La lumière de la lune tombée en <span class="grad-lume">éclats</span></h2>
+          </div>
+          <p>
+            <strong>Les Lumes</strong> sont tombés du ciel une nuit, et le monde s’est mis à
+            <em>pousser</em>&nbsp;: des clairières plus vertes, des forêts qui chuchotent, des ruines
+            dont les pierres se souviennent. Là où un éclat s’est fiché, la magie s’est réveillée —
+            et avec elle les bêtes.
+          </p>
+          <p>
+            Chaque aventurier qui pose le pied sur Vélune porte <strong>un fragment de Lume</strong>
+            au fond de la poche&nbsp;: c’est lui qui alimente ses sorts. Les plus faibles
+            ramassent les spores luisantes des Bolétins, les plus forts taillent des armures
+            dans le quartz des Hauts de Cristal.
+          </p>
+          <p>
+            Fantasy cartoon, lumière de fin d’après-midi&nbsp;: la <strong>chaleur du soleil
+            sur les pierres</strong> et la <strong>fraîcheur de l’ombre sous les saules</strong>,
+            au même instant, sur la même case. Trois mots pour la direction artistique&nbsp;:
+            <em>chaleureux</em>, <em>lisible</em>, <em>vivant</em>.
+          </p>
+          <div class="rule" style="margin-block:1.4rem"></div>
+          <p style="font-size:.88rem;color:var(--txt-mute)">
+            Isométrique 2:1 · case logique 128 × 64 px · lumière principale haut-gauche ·
+            ombres vers le bas-droite, jamais noires · contour prune <code>#2A2238</code>.
+          </p>
+        </div>
+
+        <aside class="palette reveal reveal-right" style="--d:120ms">
+          <h3>Palette — bible graphique</h3>
+          <div class="swatches" id="swatches"></div>
+          <div class="elements" id="elements"></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Classes ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="classes">
+    <div class="shell">
+      <div class="section-head center">
+        <span class="kicker reveal">Les quatre classes</span>
+        <h2 class="title-lg reveal" style="--d:80ms">Quatre silhouettes, un seul grimoire</h2>
+        <p class="lede reveal" style="--d:160ms">
+          Chaque classe a sa forme-signature reconnaissable en contre-jour, ses éléments,
+          sa courbe de PV et ses sorts débloqués de niveau&nbsp;1 à 200. Cliquez pour habiller
+          le héros.
+        </p>
+      </div>
+
+      <div class="classes-layout">
+        <div class="class-tabs reveal reveal-left" id="classTabs" role="tablist" aria-label="Classes"></div>
+        <div class="class-panel reveal reveal-right" id="classPanel" style="--d:100ms" role="tabpanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Combat ═════════════════════════════════════════════════════════ -->
+  <section class="section" id="combat">
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">Le combat</span>
+        <h2 class="title-lg reveal" style="--d:80ms">Chaque case se décide</h2>
+        <p class="lede reveal" style="--d:160ms">
+          Le serveur fait autorité&nbsp;: le client envoie une intention
+          («&nbsp;lancer Taille sur cette case&nbsp;»), le serveur la valide, la résout avec une
+          graine aléatoire qu’il garde secrète, puis renvoie les événements que le client anime.
+        </p>
+      </div>
+
+      <div class="combat-layout">
+        <div class="iso-stage reveal reveal-zoom" id="isoStage" aria-label="Démonstration de la grille isométrique"></div>
+        <div class="rules" id="rules"></div>
+      </div>
+
+      <div class="section-head" style="margin-top:clamp(2.4rem,5vw,4rem)">
+        <span class="kicker reveal">Les boss</span>
+        <h3 class="title-md reveal" style="--d:80ms">
+          Mécaniques, phases et carapace&nbsp;: ils ne s’adaptent pas à votre groupe
+        </h3>
+      </div>
+      <div class="grid grid-3" id="bossGrid"></div>
+    </div>
+  </section>
+
+  <!-- ══ Monde ═════════════════════════════════════════════════════════ -->
+  <section class="section" id="monde">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">L’atlas</span>
+        <h2 class="title-lg reveal" style="--d:80ms">
+          <span id="mapsCount">367</span> cartes, une seule carte du monde
+        </h2>
+        <p class="lede reveal" style="--d:160ms">
+          Vélune est une île&nbsp;: côtes ondulées continues d’une carte à l’autre, caps arrondis,
+          criques. Au nord les Cimes de Givre, à l’est la Côte de Nacre, au sud les Plaines Ambrées
+          et les Ruines d’Opale. Les donjons, eux, sont souterrains et éloignés les uns des autres.
+          <button class="btn btn-ghost" id="playWorldBtn" style="margin-left:.4rem;padding:.5rem 1rem;font-size:.8rem">
+            Voir le monde en grand
+          </button>
+        </p>
+      </div>
+
+      <div class="worldmap vm" id="worldmap">
+        <div class="worldmap-head">
+          <div>
+            <span class="kicker">La carte du monde</span>
+            <h3 class="title-md">L’île entière, à son échelle</h3>
+          </div>
+          <div class="worldmap-tools">
+            <div class="wm-zoom" role="group" aria-label="Zoom de la carte du monde">
+              <button class="chip" data-zoom="out" aria-label="Dézoomer">−</button>
+              <span id="wmZoomLabel">100 %</span>
+              <button class="chip" data-zoom="in" aria-label="Zoomer">+</button>
+            </div>
+            <label class="chip chip--toggle"><input type="checkbox" id="wmLayer" checked><span>Surface &amp; souterrain</span></label>
+            <button class="chip" id="wmReset">Recadrer</button>
+          </div>
+        </div>
+
+        <div class="worldmap-stage" id="wmStage">
+          <div class="wm-sea" aria-hidden="true"></div>
+          <div class="wm-grid" aria-hidden="true"></div>
+          <div class="wm-canvas" id="wmCanvas" tabindex="0" role="application"
+               aria-label="Carte du monde de Vélune. Glissez pour la déplacer, utilisez les boutons pour zoomer, cliquez sur un domaine pour le voir.">
+            <div class="wm-land" id="wmLand"></div>
+            <div class="wm-pins" id="wmPins"></div>
+          </div>
+          <div class="wm-veil" aria-hidden="true"></div>
+          <p class="wm-hint" aria-hidden="true">Glissez pour explorer · cliquez un domaine</p>
+        </div>
+
+        <aside class="wm-panel" id="wmPanel" aria-live="polite">
+          <div class="wm-panel-inner" id="wmPanelInner"></div>
+        </aside>
+      </div>
+
+      <div class="tools reveal">
+        <div class="tools-row">
+          <label class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="mapSearch" placeholder="Chercher une carte&nbsp;: Grotte, Port, Plaines…" autocomplete="off">
+          </label>
+          <div class="filters" id="layerFilters"></div>
+          <span class="result-count" id="mapCount"></span>
+        </div>
+        <div class="tools-row">
+          <div class="filters" id="regionFilters"></div>
+        </div>
+      </div>
+
+      <div class="atlas-grid" id="atlasGrid"></div>
+      <div style="display:flex;justify-content:center;margin-top:1.6rem">
+        <button class="btn btn-ghost" id="mapMore">Afficher plus de cartes</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Grimoire ══════════════════════════════════════════════════════ -->
+  <section class="section" id="grimoire">
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">Le grimoire</span>
+        <h2 class="title-lg reveal" style="--d:80ms"><span id="spellsCount">246</span> sorts, du coup de lame au jugement de pierre</h2>
+        <p class="lede reveal" style="--d:160ms">
+          Chaque sort a son coût en PA, sa portée, sa ligne de vue, sa zone
+          (case, cercle, croix, ligne, perpendiculaire) et son déblocage en niveau.
+          Les effets des créatures y sont aussi&nbsp;: rien n’est caché.
+        </p>
+      </div>
+
+      <div class="tools reveal">
+        <div class="tools-row">
+          <label class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="spellSearch" placeholder="Rechercher un sort&nbsp;: Étincelle, Mur de Flammes…" autocomplete="off">
+          </label>
+          <span class="result-count" id="spellCount"></span>
+        </div>
+        <div class="tools-row">
+          <div class="filters" id="spellOwners"></div>
+          <div class="filters" id="spellElements"></div>
+        </div>
+      </div>
+
+      <div class="grimoire-grid" id="grimoireGrid"></div>
+      <div style="display:flex;justify-content:center;margin-top:1.6rem">
+        <button class="btn btn-ghost" id="spellMore">Afficher plus de sorts</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Bestiaire ═════════════════════════════════════════════════════ -->
+  <section class="section" id="bestiaire">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">Le bestiaire</span>
+        <h2 class="title-lg reveal" style="--d:80ms">
+          <span id="monstersCount">58</span> créatures, dont <span id="bossesCount">11</span> boss
+        </h2>
+        <p class="lede reveal" style="--d:160ms">
+          Chaque créature porte sa forme dominante — le chapeau énorme du champignon, les épaules
+          massives du golem, la queue en flamme froide du loup spectral — et des
+          <strong>cristaux lilas</strong> quand elle est corrompue par la Lume&nbsp;: c’est le code
+          visuel du danger.
+        </p>
+      </div>
+
+      <div class="tools reveal">
+        <div class="tools-row">
+          <label class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="beastSearch" placeholder="Rechercher une créature…" autocomplete="off">
+          </label>
+          <div class="filters" id="beastRanges"></div>
+          <span class="result-count" id="beastCount"></span>
+        </div>
+        <div class="tools-row">
+          <div class="filters" id="beastFamilies"></div>
+        </div>
+      </div>
+
+      <div class="beast-grid" id="beastGrid"></div>
+      <div style="display:flex;justify-content:center;margin-top:1.6rem">
+        <button class="btn btn-ghost" id="beastMore">Afficher plus de créatures</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Almanach ══════════════════════════════════════════════════════ -->
+  <section class="section" id="almanach">
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">L’almanach</span>
+        <h2 class="title-lg reveal" style="--d:80ms">
+          <span id="itemsCount">302</span> objets et <span id="setsCount">26</span> panoplies
+        </h2>
+        <p class="lede reveal" style="--d:160ms">
+          Touchée <kbd>L</kbd> dans le jeu&nbsp;: image, description, statistiques, panoplie et
+          sources de chaque objet. Le légendaire tombe à environ une chance sur mille&nbsp;;
+          tout ce qui n’est pas légendaire se fabrique.
+        </p>
+      </div>
+
+      <div class="tools reveal">
+        <div class="tools-row">
+          <label class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="itemSearch" placeholder="Rechercher un objet&nbsp;: Lame, Amulette, Potion…" autocomplete="off">
+          </label>
+          <div class="filters" id="itemTypes"></div>
+          <span class="result-count" id="itemCount"></span>
+        </div>
+        <div class="tools-row">
+          <div class="filters" id="rarityFilters"></div>
+          <div class="legend" id="rarityLegend"></div>
+        </div>
+      </div>
+
+      <div class="almanach-grid" id="almanachGrid"></div>
+      <div style="display:flex;justify-content:center;margin-top:1.6rem">
+        <button class="btn btn-ghost" id="itemMore">Afficher plus d’objets</button>
+      </div>
+
+      <div class="section-head" style="margin-top:clamp(2.6rem,5vw,4rem)">
+        <span class="kicker reveal">Panoplies</span>
+        <h3 class="title-md reveal" style="--d:80ms">Bonus cumulatifs par nombre de pièces</h3>
+      </div>
+      <div class="grid grid-3" id="setsGrid"></div>
+    </div>
+  </section>
+
+  <!-- ══ Quêtes ════════════════════════════════════════════════════════ -->
+  <section class="section" id="quetes">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">Quêtes &amp; donjons</span>
+        <h2 class="title-lg reveal" style="--d:80ms">Journal de <span id="questsCount">67</span> quêtes, du premier Bolétin au Cœur-de-Lave</h2>
+        <p class="lede reveal" style="--d:160ms">
+          Tuer, collecter, parler — chaque récompense est validée par le serveur.
+          Dans les donjons, la porte suivante s’ouvre quand la salle est vaincue&nbsp;;
+          mourir en donjon vous renvoie devant l’entrée, sans perte.
+        </p>
+      </div>
+      <div class="tools reveal">
+        <div class="tools-row">
+          <label class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="questSearch" placeholder="Rechercher une quête…" autocomplete="off">
+          </label>
+          <span class="result-count" id="questCount"></span>
+        </div>
+      </div>
+      <div class="quest-list" id="questList"></div>
+    </div>
+  </section>
+
+  <!-- ══ Métiers ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="metiers">
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">Métiers &amp; artisanat</span>
+        <h2 class="title-lg reveal" style="--d:80ms">
+          <span id="jobsCount">7</span> métiers, <span id="recipesCount">214</span> recettes, 18 ateliers
+        </h2>
+        <p class="lede reveal" style="--d:160ms">
+          On apprend tous les métiers, librement, à leur atelier&nbsp;: le premier est gratuit dans
+          le sens où il n’y a aucun prerequisite. Chaque fabrication donne de l’XP de métier,
+          et chaque atelier progresse sans trou de plus de quatre niveaux.
+        </p>
+      </div>
+      <div class="grid grid-4" id="jobsGrid"></div>
+
+      <div class="section-head" style="margin-top:clamp(2.4rem,5vw,3.6rem)">
+        <span class="kicker reveal">Chaîne d’artisanat</span>
+        <h3 class="title-md reveal" style="--d:80ms">Du pin coupé à la lame de lune, pièce par pièce</h3>
+      </div>
+      <div class="card reveal" id="chainCard"></div>
+
+      <div class="section-head" style="margin-top:clamp(2.4rem,5vw,3.6rem)">
+        <span class="kicker reveal">Les maisons</span>
+        <h3 class="title-md reveal" style="--d:80ms">Le détail de chaque maison</h3>
+      </div>
+      <div class="chain-tail reveal" style="color:var(--txt-mute);font-size:.9rem">
+        Huit maisons sont en liste à l’hôtel des ventes, une par compte :
+        chaumière, cabane, maison de pêche, atelier, manoir, tour, maison de maître et
+        château. Elles sont détaillées juste après, avec leur carte et leur mobilier.
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Propriétés ════════════════════════════════════════════════════════ -->
+  <section class="section" id="proprietes">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">Le domaine</span>
+        <h2 class="title-lg reveal" style="--d:80ms">Un toit, une porte, et votre nom dessus</h2>
+        <p class="lede reveal" style="--d:160ms">
+          Les maisons s’achètent au comptoir de l’hôtel des ventes, une par compte. Elles sont
+          livrées avec leur mobilier de départ ; le coffre garde ce que vous y mettez, et rien
+          de ce qu’il y a dedans ne se perd à la mort.
+          <span id="estateCount">Huit</span> propriétés sont en liste aujourd’hui.
+        </p>
+      </div>
+
+      <div class="estate-ledger vm" id="estateLedger"></div>
+
+      <div class="estate-grid" id="housesGrid"></div>
+    </div>
+  </section>
+
+  <!-- ══ Village & social ═════════════════════════════════════════════ -->
+  <section class="section" id="social">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">Le village &amp; les autres</span>
+        <h2 class="title-lg reveal" style="--d:80ms">Cinquante-quatre visages, et ceux qui arrivent</h2>
+        <p class="lede reveal" style="--d:160ms">
+          <span id="villagersCount">54</span> villageois dessinés à leurs couleurs, un maître
+          artisan dans chaque atelier, Aurèle derrière le comptoir de l’hôtel des ventes,
+          Pervenche à côté de la porte de l’auberge. Et tous les autres joueurs, visibles
+          sur la carte dès le départ.
+        </p>
+      </div>
+
+      <div class="combat-layout">
+        <div class="grid grid-3 reveal" id="socialGrid"></div>
+
+        <div class="chat-mock reveal reveal-right" style="--d:120ms">
+          <div class="chat-tabs" role="tablist">
+            <button class="active" data-channel="Carte" role="tab">Carte</button>
+            <button data-channel="Général" role="tab">Général</button>
+            <button data-channel="Groupe" role="tab">Groupe</button>
+          </div>
+          <div class="chat-log" id="chatLog" aria-live="polite"></div>
+          <form class="chat-form" id="chatForm">
+            <input type="text" id="chatInput" placeholder="Écrire dans le canal…" maxlength="120" autocomplete="off">
+            <button type="submit">Envoyer</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin-top:clamp(2.4rem,5vw,3.6rem)">
+        <span class="kicker reveal">Habitants</span>
+        <h3 class="title-md reveal" style="--d:80ms">Qui est où</h3>
+      </div>
+      <div class="grid grid-3" id="villagersGrid"></div>
+    </div>
+  </section>
+
+  <!-- ══ Économie ═════════════════════════════════════════════════════════ -->
+  <section class="section" id="economie">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">L’économie</span>
+        <h2 class="title-lg reveal" style="--d:80ms">Une seule monnaie, les Lunes, et personne ne la crée</h2>
+        <p class="lede reveal" style="--d:160ms">
+          Les Lunes ne sortent de nulle part&nbsp;: elles tombent des créatures, se gagnent au
+          journal, se dépensent à l’hôtel des ventes, dans les ateliers et au Tripot. Chaque
+          chiffre de cette page est recalculé à partir des fichiers du jeu&nbsp;: rien n’est
+          arrondi pour faire joli.
+        </p>
+      </div>
+
+      <div class="econ-ledger vm" id="econLedger"></div>
+
+      <div class="econ-layout">
+        <figure class="econ-chart card" id="econChart">
+          <figcaption>
+            <span class="kicker">Richesse cumulée</span>
+            <b>Ce que rapporte le journal de quêtes, palier par palier</b>
+          </figcaption>
+          <div class="econ-plot" id="econPlot"></div>
+          <div class="econ-legend" id="econLegend"></div>
+        </figure>
+
+        <aside class="card econ-sources-card">
+          <span class="kicker">D’où vient la monnaie</span>
+          <div class="econ-sources" id="econSources"></div>
+          <p class="econ-note" id="econEdge"></p>
+        </aside>
+      </div>
+
+      <div class="section-head" style="margin-top:clamp(2.4rem,5vw,3.6rem)">
+        <span class="kicker reveal">Le marché</span>
+        <h3 class="title-md reveal" style="--d:80ms">Ce que vaut une pièce, du Commun au Légendaire</h3>
+      </div>
+      <div class="econ-tiers" id="econTiers"></div>
+    </div>
+  </section>
+
+  <!-- ══ Héros ════════════════════════════════════════════════════════════ -->
+  <section class="section" id="heros">
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">La fiche du héros</span>
+        <h2 class="title-lg reveal" style="--d:80ms">Une fiche de personnage au niveau <span id="heroProfileLevel">120</span></h2>
+        <p class="lede reveal" style="--d:160ms">
+          Une fiche comme celle que l’atelier de jeu affiche&nbsp;: les PV suivent la vraie
+          courbe de la classe, l’équipement est la panoplie la plus chère du jeu, et les
+          badges sont des faits vérifiables dans les données du serveur.
+        </p>
+      </div>
+
+      <div class="sheet" id="profileSheet">
+        <div class="sheet-crest" id="profileCrest"></div>
+
+        <div class="sheet-id">
+          <div class="sheet-ring" id="profileRing">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="ring-bg" cx="60" cy="60" r="54"></circle>
+              <circle class="ring-fg" cx="60" cy="60" r="54"></circle>
+            </svg>
+            <b id="profileLevel">1</b>
+            <small>niveau</small>
+          </div>
+          <div class="sheet-name">
+            <h3 id="profileName">Gardelame</h3>
+            <p id="profileRole">…</p>
+            <div class="sheet-equip" id="profileEquip"></div>
+          </div>
+        </div>
+
+        <div class="sheet-stats" id="profileStats"></div>
+
+        <div class="sheet-res" id="profileRes"></div>
+      </div>
+
+      <div class="sheet-cols">
+        <div class="card sheet-panel">
+          <span class="kicker">Équipement</span>
+          <div class="gear" id="profileGear"></div>
+          <ul class="set-bonus" id="profileBonuses"></ul>
+        </div>
+
+        <div class="card sheet-panel">
+          <span class="kicker">Sorts de haut niveau</span>
+          <div class="spell-strip" id="profileSpells"></div>
+          <p class="sheet-foot" id="profileSpellFoot"></p>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin-top:clamp(2.2rem,4vw,3rem)">
+        <span class="kicker reveal">Les titres gagnés</span>
+        <h3 class="title-md reveal" style="--d:80ms">Ce que le serveur a validé</h3>
+      </div>
+      <div class="badges" id="profileBadges"></div>
+
+      <div class="rank" id="profileRank"></div>
+    </div>
+  </section>
+
+  <!-- ══ Tripot ════════════════════════════════════════════════════════ -->
+  <section class="section" id="tripot">
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">Le Tripot de la Lune Rousse</span>
+        <h2 class="title-lg reveal" style="--d:80ms">Huit jeux, un avantage de maison de 6 à 8&nbsp;%</h2>
+        <p class="lede reveal" style="--d:160ms">
+          Le tripot est un bâtiment à Hautsaule, avec son escalier de Lampes et son intérieur.
+          Machines jouées directement, plus de croupiers&nbsp;; le serveur tire, la maison garde
+          sa marge. Essayez&nbsp;: c’est la mécanique réelle des machines de jeu de Vélune.
+        </p>
+      </div>
+
+      <div class="casino-layout">
+        <div class="machine reveal reveal-zoom" id="machine">
+          <div class="machine-head">
+            <h3>Trois Lunes</h3>
+            <span class="purse"><small>PORTEMONNAIE</small><span id="purse">1 000</span> ⬡</span>
+          </div>
+          <div class="reels" id="reels" aria-live="polite">
+            <div class="reel">🍃</div><div class="reel">🍄</div><div class="reel">💎</div>
+          </div>
+          <div class="bet-row" id="betRow"></div>
+          <div class="machine-actions">
+            <button class="btn btn-primary" id="spinBtn">Tourner — <span id="betLabel">50 ⬡</span></button>
+            <button class="chip" id="autoBtn">Machine auto</button>
+            <button class="chip" id="resetBtn">Réapprovisionner</button>
+          </div>
+          <p class="machine-log" id="machineLog">Alignez trois symboles. La Lune paie même seule&nbsp;; deux payent ×5.</p>
+        </div>
+
+        <div class="game-list reveal reveal-right" style="--d:120ms" id="gameList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Roadmap ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="roadmap">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="shell">
+      <div class="section-head">
+        <span class="kicker reveal">Feuille de route</span>
+        <h2 class="title-lg reveal" style="--d:80ms">
+          <span id="milestonesCount">43</span> jalons, de V0.1 à V0.44
+        </h2>
+        <p class="lede reveal" style="--d:160ms">
+          Chaque grande mise à jour est résumée une fois par compte, avec la liste de ce qui a changé.
+          La version suivante, la tranche verticale complète, attend.
+        </p>
+      </div>
+      <div class="tl-filter reveal" id="tlFilter"></div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </section>
+
+  <!-- ══ Rejoindre ═════════════════════════════════════════════════════ -->
+  <section class="section section--tight" id="rejoindre">
+    <div class="shell">
+      <div class="section-head center">
+        <span class="kicker reveal">Serveurs de jeu</span>
+        <h2 class="title-lg reveal" style="--d:80ms">Choisissez votre lune</h2>
+        <p class="lede reveal" style="--d:160ms">
+          Mondes séparés&nbsp;: héros, maisons, créatures, joueurs et discussion.
+          Seul Sélénor est ouvert pour l’instant.
+        </p>
+      </div>
+      <div class="server-grid" id="serverGrid"></div>
+
+      <div class="join-band reveal reveal-zoom" style="margin-top:clamp(2.4rem,5vw,3.6rem)">
+        <h2 class="title-lg">Prêt à porter un éclat&nbsp;?</h2>
+        <p>
+          Vélune se joue dans le navigateur, aux côtés de vos amis. Le monde est
+          déployé en ligne&nbsp;: <strong>Jouer en ligne</strong> ouvre le jeu
+          directement, sans rien installer. Le jeu reste aussi jouable chez vous,
+          sur votre machine, par <strong>Velune.bat</strong>.
+        </p>
+        <div class="join-actions">
+          <a class="btn btn-primary" href="https://velune-h6og.onrender.com/" target="_blank" rel="noopener noreferrer" data-play>
+            Jouer en ligne
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#top">
+            Reprendre la visite
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+          </a>
+          <a class="btn btn-ghost" href="#classes">Revoir les classes</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Pied de page -->
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <a class="nav-brand" href="#top">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M22 4a13 13 0 1 0 7 23A15 15 0 0 1 22 4Z" fill="#7FF3FF"/></svg>
+          Vélune
+        </a>
+        <p class="footer-note">
+          MMORPG tactique au tour par tour, isométrique. Univers, personnages et assets
+          100&nbsp;% originaux, générés par une chaîne d’illustration SVG maison.
+        </p>
+      </div>
+      <div>
+        <h4>Le jeu</h4>
+        <ul>
+          <li><a href="#univers">Univers</a></li>
+          <li><a href="#classes">Classes</a></li>
+          <li><a href="#combat">Combat</a></li>
+          <li><a href="#monde">Monde</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Le contenu</h4>
+        <ul>
+          <li><a href="#grimoire">Grimoire</a></li>
+          <li><a href="#bestiaire">Bestiaire</a></li>
+          <li><a href="#almanach">Almanach</a></li>
+          <li><a href="#quetes">Quêtes</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>La vie</h4>
+        <ul>
+          <li><a href="#metiers">Métiers</a></li>
+          <li><a href="#social">Village &amp; social</a></li>
+          <li><a href="#tripot">Tripot</a></li>
+          <li><a href="#roadmap">Feuille de route</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Vélune — tous les chiffres de cette page viennent des fichiers du jeu.</span>
+      <span>Graphismes générés en SVG · Moteur isométrique maison · Tour par tour</span>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="Retour en haut">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+</button>
+
+<!-- Modale de détail -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-bg" data-close></div>
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<!-- Palette de commandes -->
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="palette-bg modal-bg" data-close></div>
+  <div class="palette-box">
+    <input type="text" id="paletteInput" placeholder="Chercher un sort, une créature, un objet, une carte…" autocomplete="off" spellcheck="false">
+    <div class="palette-results" id="paletteResults"></div>
+    <div class="palette-foot">
+      <span>↑ ↓ naviguer</span><span>↵ ouvrir</span><span>Échap fermer</span>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<audio id="music" src="assets/audio/menu.mp3" loop preload="none"></audio>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/ScrollTrigger.min.js"></script>
+<script src="assets/vendor/CustomEase.min.js"></script>
+<script src="assets/vendor/SplitText.min.js"></script>
+<script src="assets/vendor/lenis.min.js"></script>
+<script src="assets/js/motion.js"></script>
+<script src="assets/js/rig.js"></script>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/modules.js"></script>
+<script src="assets/js/kingdom.js"></script>
+</body>
+</html>

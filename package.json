@@ -1,0 +1,29 @@
+{
+  "name": "velune-site",
+  "version": "0.44.0",
+  "private": true,
+  "description": "Site vitrine interactif de Vélune — MMORPG tactique au tour par tour. Contenu généré depuis les fichiers du jeu. Animations : GSAP + ScrollTrigger + Lenis.",
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "vendor": "node tools/vendor.mjs",
+    "check": "node tools/check.mjs",
+    "shots": "node tools/shots.mjs",
+    "audit": "node tools/audit.mjs",
+    "gallery": "node tools/gallery.mjs",
+    "serve": "node tools/serve.mjs",
+    "verify": "npm run build && npm run check && npm run shots && npm run audit",
+    "compare": "node tools/compare-figure.mjs",
+    "measure": "node tools/measure-figure.mjs"
+  },
+  "devDependencies": {
+    "acorn": "^8.18.0",
+    "jsdom": "^30.1.2",
+    "puppeteer-core": "^24.10.2",
+    "sharp": "^0.34.4"
+  },
+  "dependencies": {
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.26"
+  }
+}
