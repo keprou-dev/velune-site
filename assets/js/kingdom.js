@@ -181,7 +181,7 @@
   /* ══════════════════════════════════════════════════════════════════════
      3. La carte du monde
      ──────────────────────────────────────────────────────────────────────
-     Le jeu place ses 367 cartes sur une grille (c, r) : c vers l'est, r vers
+     Le jeu place ses 375 cartes sur une grille (c, r) : c vers l'est, r vers
      le sud. On dessine cette grille telle quelle — c'est la vraie géographie
      de Vélune, pas une carte décorative.
      ══════════════════════════════════════════════════════════════════════ */

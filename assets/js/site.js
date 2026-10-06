@@ -701,7 +701,7 @@
   window.__veluneOpen = { spell: openSpell, monster: openMonster, item: openItem, map: openMap, modal: openModal, close: closeModal }
 
   /* ══════════════════════════════════════════════════════════════════════
-     8. L’atlas : 367 cartes filtrables
+     8. L’atlas : 375 cartes filtrables
      ══════════════════════════════════════════════════════════════════════ */
   var allMaps = []
   V.atlas.forEach(function (r) {
