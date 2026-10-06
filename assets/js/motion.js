@@ -434,9 +434,12 @@
   var refreshQueue = []
   /** Les modules ajoutent du DOM : on redimensionne les déclencheurs une fois. */
   VM.onRefresh = function (fn) { refreshQueue.push(fn) }
+  var bodyWatch = null
   VM.refresh = function () {
     refreshQueue.forEach(function (fn) { try { fn() } catch (e) { /* un module ne doit pas casser le scroll */ } })
     ST.refresh()
+    // Les changements que ce recalcul a lui-même provoqués ne doivent pas en relancer un autre (boucle sans fin).
+    if (bodyWatch) bodyWatch.takeRecords()
   }
 
   var refreshTimer = null
@@ -466,7 +469,8 @@
   // Le menu mobile et les modales changent la hauteur disponible.
   var mo = win.MutationObserver
   if (mo) {
-    new mo(queueRefresh).observe(doc.body, { childList: true, subtree: false })
+    bodyWatch = new mo(queueRefresh)
+    bodyWatch.observe(doc.body, { childList: true, subtree: false })
   }
 
   VM.ready = true
